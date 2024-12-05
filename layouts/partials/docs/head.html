@@ -99,9 +99,11 @@
     {{- end -}}
     {{- end -}}
     <!-- Google Analytics v4 Config -->
-    {{- if not hugo.IsServer }}
-    {{- if .Site.GoogleAnalytics }}
-        {{- template "_internal/google_analytics.html" . -}}
-    {{- end -}}
-    {{- end -}}
+    {{ if .Site.Params.analytics.enabled | default false -}}
+        {{- if not hugo.IsServer }}
+            {{- if .Site.GoogleAnalytics }}
+                {{- template "_internal/google_analytics.html" . -}}
+            {{- end -}}
+        {{- end -}}
+    {{ end -}}
 </head>
