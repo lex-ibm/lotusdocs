@@ -26,7 +26,14 @@
                 {{ range . }}
                     {{ $path := printf "images/social/%s.%s" . "svg" }}
                     <li class="list-inline-item mb-0">
-                        <a href="{{ if eq . `rss` }} {{ `index.xml` | absURL }} {{ else }} https://{{ . }}.com/{{ index site.Params.social . }} {{ end }}" alt="{{ . }}" rel="noopener noreferrer" target="_blank">
+                        <a href="{{ if or (strings.HasPrefix (index site.Params.social .) "http://") (strings.HasPrefix (index site.Params.social .) "https://") }}
+                                        {{ index site.Params.social . }}
+                                    {{ else if eq . `rss` }}
+                                        {{ `index.xml` | absURL }}
+                                    {{ else }}
+                                        https://{{ . }}.com/{{ index site.Params.social . }}
+                                    {{ end }}"
+                            alt="{{ . }}" rel="noopener noreferrer" target="_blank">
                             <div class="btn btn-icon btn-landing border-0">
                                 {{ with resources.Get $path }}
                                     {{ .Content | safeHTML }}

@@ -2,11 +2,25 @@
 {{ $text := .PlainText }}
 {{ $url := urls.Parse $dest }}
 
+{{ $src := $dest }}
+{{ if not $url.IsAbs }}
+  {{ $path := strings.TrimPrefix "./" $url.Path }}
+  {{ with or (.PageInner.Resources.Get $path) (resources.Get $path) }}
+    {{ $src = .RelPermalink }}
+    {{ with $url.RawQuery }}
+      {{ $src = printf "%s?%s" $src . }}
+    {{ end }}
+    {{ with $url.Fragment }}
+      {{ $src = printf "%s#%s" $src . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
 {{ $image := newScratch }}
 {{ with $url.Scheme }}
-  {{  $image.Set "resource" (resources.GetRemote $dest) }}
+  {{ $image.Set "resource" (resources.GetRemote $dest) }}
 {{ else }}
-  {{  $image.Set "resource" (resources.Get $dest) }}
+  {{ $image.Set "resource" (resources.Get $dest) }}
 {{ end }}
 
 {{ if .Title }}
@@ -15,10 +29,10 @@
       {{ if eq .MediaType.SubType "svg" }}
         {{ .Content | safeHTML }}
       {{ else }}
-        <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
+        <img src="{{ $src | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
       {{ end }}
     {{ else }}
-      <img src="{{ .Destination | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
+      <img src="{{ $src | safeURL }}" alt="{{ $text }}" loading="lazy">
     {{ end }}
     <figcaption>{{ .Title | markdownify }}</figcaption>
   </figure>
@@ -27,7 +41,9 @@
     {{ if eq .MediaType.SubType "svg" }}
       {{ .Content | safeHTML }}
     {{ else }}
-      <img src="{{ .RelPermalink | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
+      <img src="{{ $src | safeURL }}" alt="{{ $text }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy">
     {{ end }}
+  {{ else }}
+    <img src="{{ $src | safeURL }}" alt="{{ $text }}" loading="lazy">
   {{ end }}
 {{ end }}
