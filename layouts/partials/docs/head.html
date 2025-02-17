@@ -106,4 +106,9 @@
             {{- end -}}
         {{- end -}}
     {{ end -}}
+    {{ if .Site.Params.docs.useExtraStylesheets | default false }}
+        {{ range .Site.Params.docs.extraStylesheets }}
+            <link rel="stylesheet" href="{{ . }}">
+        {{ end }}
+    {{ end }}
 </head>
